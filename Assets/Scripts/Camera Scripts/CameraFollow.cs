@@ -22,12 +22,29 @@ public class CameraFollow : MonoBehaviour {
 		cameraBounds = myCol.bounds;
 	}
 
-	void Start () {
+	void Start () { 
+
+		if (target == null) {
+			GameObject Player = GameObject.FindGameObjectWithTag("Player"); // if the gameoject is null/cant be found,use the "GameObject.FindGameObjectWithTag" method to assign whatever object has that tag to the Player Game object
+
+			if (Player != null)
+			{
+				target = Player.transform; //the players position is now assigned to "target"
+                Debug.Log( target.name + "has been located");
+            }
+			else
+			{
+				Debug.LogError("Dude we cant find your Gameobject");
+			}
+		}
+
 		
-		//Assign the player gameobject to the transform target here.
-		
-		offsetZ = (transform.position - target.position).z;
-		followsPlayer = true;
+		if (target != null)
+		{
+			offsetZ = (transform.position - target.position).z;
+			followsPlayer = true;
+            Debug.Log("the camera is following the " + target.name);
+        }
 	}
 	
 	// Update is called once per frame
