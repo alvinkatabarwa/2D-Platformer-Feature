@@ -27,8 +27,8 @@ public class PlayerMovement : MonoBehaviour {
 	}
 
 	void Update () {
-		//Check if the player is grounded here to ensure the player is not jumping mid air
-		//Make the player jump
+		CheckIfGrounded();//Check if the player is grounded here to ensure the player is not jumping mid air
+		PlayerJump();//Make the player jump
 	}
 
 	void FixedUpdate() {
@@ -84,11 +84,12 @@ public class PlayerMovement : MonoBehaviour {
 	//Make the player jump
 	void PlayerJump() {
 		if (isGrounded) {
-			if (/*Use the spacebar to make the player jump. Delete "jumped" after this comment*/jumped) {
+			if (Input.GetKeyDown(KeyCode.Space)) { 
 				jumped = true;
-				myBody.velocity = new Vector2 (myBody.velocity.x, jumpPower);
+				myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
 
-				anim.SetBool ("Jump", true);
+				anim.SetBool("Jump", true); 
+			
 			}
 		}
 	}
