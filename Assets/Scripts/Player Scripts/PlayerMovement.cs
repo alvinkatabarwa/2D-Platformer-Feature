@@ -2,146 +2,110 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour {
+public class PlayerMovement : MonoBehaviour
+{
+    public float speed = 5f;
 
-	public float speed = 5f;
+    private Rigidbody2D myBody;
+    private Animator anim;
 
-	private Rigidbody2D myBody;
-	private Animator anim;
+    public Transform groundCheckPosition;
+    public LayerMask groundLayer;
 
-	public Transform groundCheckPosition;
-	public LayerMask groundLayer;
+    private bool isGrounded;
+    private bool jumped;
 
-	private bool isGrounded;
-	private bool jumped;
+    private float jumpPower = 12f;
 
-	private float jumpPower = 12f;
+    void Awake()
+    {
+        myBody = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+    }
 
-	void Awake() {
-		myBody = GetComponent<Rigidbody2D>();
-		anim = GetComponent<Animator> ();
-	}
+    void Update()
+    {
+        //Debug.Log("Update is running");
+        CheckIfGrounded(); // Ensure the player is not jumping in mid-air
+        PlayerJump(); // Make the player jump
+    }
 
-	void Start () {
-		
-	}
+    void FixedUpdate()
+    {
+        PlayerWalk();
+    }
 
-	void Update () {
-        Debug.Log("Update is running");
-        CheckIfGrounded();//Check if the player is grounded here to ensure the player is not jumping mid air
-		PlayerJump();//Make the player jump
-	}
+    void PlayerWalk()
+    {
+        float h = Input.GetAxis("Horizontal");
 
-	void FixedUpdate() {
-		PlayerWalk ();
-	}
+        if (h > 0)
+        {
+            myBody.velocity = new Vector2(speed, myBody.velocity.y);
+            ChangeDirection(1);
+        }
+        else if (h < 0)
+        {
+            myBody.velocity = new Vector2(-speed, myBody.velocity.y);
+            ChangeDirection(-1);
+        }
+        else
+        {
+            myBody.velocity = new Vector2(0f, myBody.velocity.y);
+        }
 
-	void PlayerWalk() {
+        anim.SetInteger("Speed", Mathf.Abs((int)myBody.velocity.x));
+    }
 
-		float h = Input.GetAxis("Horizontal"); //replace "0" as the value of float h with the correct axis of movement.
-		//Note: The value of h must use the right and left arrow or "a" and "d" keys to move the player
-		//right and left.
+    void ChangeDirection(int direction)
+    {
+        Vector3 tempScale = transform.localScale;
+        tempScale.x = direction;
+        transform.localScale = tempScale;
+    }
 
-		if (h > 0) {
-			myBody.velocity = new Vector2 (speed, myBody.velocity.y);
+    // Checking if the player is on the ground
+    void CheckIfGrounded()
+    {
+        isGrounded = Physics2D.Raycast(groundCheckPosition.position, Vector2.down, 0.2f, groundLayer);
+       Debug.Log("Ground check :" + isGrounded);
 
-			ChangeDirection (1);
+        if (isGrounded && jumped)
+        {
+            jumped = false;
+            anim.SetBool("Jump", false);
+        }
+    }
 
-		} else if (h < 0) {
-			myBody.velocity = new Vector2 (-speed, myBody.velocity.y);
+    // Make the player jump
+    void PlayerJump()
+    {
+        //Debug.Log("calling jump");
 
-			ChangeDirection (-1);
+        if (isGrounded)
+        {
+           Debug.Log("Player is on the ground");
 
-		} else {
-			myBody.velocity = new Vector2 (0f, myBody.velocity.y);
-		}
-
-		anim.SetInteger ("Speed", Mathf.Abs((int)myBody.velocity.x));
-
-	}
-
-	void ChangeDirection(int direction) {
-		Vector3 tempScale = transform.localScale;
-		tempScale.x = direction;
-		transform.localScale = tempScale;
-	}
-
-	//Checking if the player is on the ground
-	void CheckIfGrounded() {
-		isGrounded = Physics2D.Raycast (groundCheckPosition.position, Vector2.down, 0.1f, groundLayer);
-		Debug.Log("player is grounded");
-		if (isGrounded) {
-			// and we jumped before
-			if (jumped) {
-				
-				jumped = false;
-
-				anim.SetBool ("Jump", false);
-			}
-		}
-
-	}
-
-	//Make the player jump
-	void PlayerJump() {
-		Debug.Log("checking jump");
-		if (isGrounded) {
-            Debug.Log("Player is on the ground");
-            if (Input.GetKeyDown(KeyCode.Space)) {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
                 Debug.Log("Jump Key Pressed!");
                 jumped = true;
-				myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
+                myBody.velocity = new Vector2(myBody.velocity.x, jumpPower);
 
-				anim.SetBool("Jump", true); 
-			
-			}
-		}
-	}
+                anim.SetBool("Jump", true);
 
+              
+            }
+        }
+    }
+
+    // Function that tells us when the Player touches something
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Water"))
+        {
+            Debug.Log("Player is in the water");
+            FindObjectOfType<GameManager>().InWater();
+        }
+    }
 } // class
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
